@@ -15,6 +15,7 @@ import {
   TimeScale,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
+import styles from './LineGraph.module.css';  
 
 ChartJS.register(
   CategoryScale,
@@ -29,6 +30,7 @@ ChartJS.register(
 
 const LineGraph = () => {
   const [data, setData] = useState<any>({ datasets: [] });
+  const [stats, setStats] = useState<any>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,10 +49,27 @@ const LineGraph = () => {
           .map((d: any) => ({ x: new Date(d.timestamp), y: d.value }))
           .sort((a: any, b: any) => a.x - b.x);
 
+        const calculateStats = (data: any[]) => {
+          const values = data.map(d => d.y);
+          const sum = values.reduce((a, b) => a + b, 0);
+          const avg = (sum / values.length).toFixed(2);
+          const min = Math.min(...values);
+          const max = Math.max(...values);
+          return { avg, min, max };
+        };
+
+        const sensor1Stats = calculateStats(sensor1Data);
+        const sensor2Stats = calculateStats(sensor2Data);
+
+        setStats({
+          sensor1: sensor1Stats,
+          sensor2: sensor2Stats,
+        });
+
         setData({
           datasets: [
             {
-              label: 'soil moisture sensor',
+              label: 'Soil Moisture Sensor',
               data: sensor1Data,
               borderColor: 'red',
               backgroundColor: 'rgba(255, 0, 0, 0.5)',
@@ -58,7 +77,7 @@ const LineGraph = () => {
               tension: 0.1,
             },
             {
-              label: 'sound sensor',
+              label: 'Sound Sensor',
               data: sensor2Data,
               borderColor: 'blue',
               backgroundColor: 'rgba(0, 0, 255, 0.5)',
@@ -76,34 +95,54 @@ const LineGraph = () => {
   }, []);
 
   return (
-    <div>
-      <Line
-        data={data}
-        options={{
-          scales: {
-            x: {
-              type: 'time',
-              time: {
-                unit: 'minute',
+    <div className={styles.container}>
+      <div className={styles.statsContainer}>
+        <h2 className={styles.title}>Statistics</h2>
+        <div className={styles.sensorStats}>
+          <h3 className={styles.subtitle}>Soil Moisture Sensor</h3>
+          <p>Average: {stats.sensor1?.avg}</p>
+          <p>Min: {stats.sensor1?.min}</p>
+          <p>Max: {stats.sensor1?.max}</p>
+        </div>
+        <div className={styles.sensorStats}>
+          <h3 className={styles.subtitle}>Sound Sensor</h3>
+          <p>Average: {stats.sensor2?.avg}</p>
+          <p>Min: {stats.sensor2?.min}</p>
+          <p>Max: {stats.sensor2?.max}</p>
+        </div>
+      </div>
+      <div className={styles.chartContainer}>
+        <Line
+          data={data}
+          options={{
+            scales: {
+              x: {
+                type: 'time',
+                time: {
+                  unit: 'minute',
+                },
+                title: {
+                  display: true,
+                  text: 'Time',
+                },
               },
-              title: {
-                display: true,
-                text: 'Time',
+              y: {
+                title: {
+                  display: true,
+                  text: 'Value',
+                },
               },
             },
-            y: {
-              title: {
-                display: true,
-                text: 'Value',
-              },
-            },
-          },
-        }}
-      />
+          }}
+        />
+      </div>
     </div>
   );
 };
 
 export default LineGraph;
+
+
+
 
 
