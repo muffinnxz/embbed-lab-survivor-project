@@ -7,7 +7,6 @@ import LineGraph from "@/components/LineGraph";
 export default function Home() {
   return (
     <div>
-      <TypographySmall>Home</TypographySmall>
       <ChangeThemeButton />
       <LineGraph />
     </div>
