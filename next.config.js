@@ -8,7 +8,7 @@ const nextConfig = {
       },
     ],
   },
-  swcMinify: false,
+  // swcMinify: false,
   reactStrictMode: false,
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
